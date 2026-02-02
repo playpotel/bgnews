@@ -4,11 +4,13 @@
   <meta charset="UTF-8" />
   <title>Български Новини</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Актуални новини от водещи български медии">
-  <meta property="og:title" content="Български Новини">
-  <meta property="og:description" content="Актуални новини от България">
-  <meta property="og:site_name" content="Български Новини">
-  <meta property="og:image" content="https://bgnews.pages.dev/og.jpg">
+  <meta name="description" content="Актуални новини от водещи български медии" />
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Български Новини" />
+  <meta property="og:description" content="Актуални новини от България" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Български Новини" />
 
   <style>
     body { font-family: system-ui, sans-serif; margin:0; background:#f4f6f8; color:#222; }
@@ -18,14 +20,15 @@
     .filters button { background:#fff; border:none; border-radius:999px; padding:.3rem .8rem; cursor:pointer; font-size:.8rem; }
     main { max-width:800px; margin:auto; padding:1rem; }
     article { background:#fff; border-radius:10px; padding:1rem; margin-bottom:1rem; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+    article h2 { font-size:1.05rem; margin:.5rem 0; }
     .badge { display:inline-block; font-size:.7rem; padding:.2rem .5rem; border-radius:6px; color:#fff; margin-right:.5rem; }
     .BNR { background:#2563eb; }
     .Dnevnik { background:#059669; }
     .Capital { background:#dc2626; }
     .BulNews { background:#7c3aed; }
+    .News { background:#64748b; }
     .meta { font-size:.75rem; color:#666; margin-bottom:.5rem; }
     footer { text-align:center; font-size:.75rem; color:#777; padding:1rem; }
-    .ad { background:#f1f5f9; border-radius:8px; padding:.5rem; text-align:center; font-size:.7rem; margin:1rem 0; }
   </style>
 </head>
 <body>
@@ -38,28 +41,37 @@
 <main id="news">Зареждане...</main>
 
 <footer>
-  BG news
+  © BG News
 </footer>
 
 <script>
 const API = "https://bg-news-api.playpotel.workers.dev/";
 let allItems = [];
 
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-zа-я0-9]+/gi, '-')
+    .replace(/^-|-$/g, '');
+}
+
 async function loadNews() {
+  const container = document.getElementById('news');
   try {
-    const res = await fetch(API);
+    const res = await fetch(API, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    allItems = data.items || [];
+    allItems = Array.isArray(data.items) ? data.items : [];
     buildFilters();
     render(allItems);
   } catch (e) {
-    document.getElementById('news').textContent = 'Грешка при зареждане';
     console.error(e);
+    container.innerHTML = '<p style="color:#b91c1c">Грешка при зареждане</p>';
   }
 }
 
 function buildFilters() {
-  const sources = [...new Set(allItems.map(i => i.source))];
+  const sources = [...new Set(allItems.map(i => i.source || 'News'))];
   const el = document.getElementById('filters');
   el.innerHTML = '<button onclick="render(allItems)">All</button>';
   sources.forEach(src => {
@@ -74,31 +86,27 @@ function render(items) {
   const container = document.getElementById('news');
   container.innerHTML = '';
 
-  items.forEach((item, idx) => {
-    const art = document.createElement('article');
+  items.forEach(item => {
+    const slug = slugify(item.title || 'news');
+    const safeSource = (item.source || 'News').replace(/\s+/g, '');
 
+    const art = document.createElement('article');
     art.innerHTML =
-      '<span class="badge ' + item.source + '">' + item.source + '</span>' +
+      '<span class="badge ' + safeSource + '">' + (item.source || '') + '</span>' +
       '<h2>' + item.title + '</h2>' +
       '<div class="meta">' + new Date(item.pubDate).toLocaleString('bg-BG') + '</div>' +
       '<p>' + (item.description || '') + '</p>' +
       '<a href="/news/' + slug + '">Прочети още →</a>';
 
     container.appendChild(art);
-
-    if ((idx + 1) % 5 === 0) {
-      const ad = document.createElement('div');
-      ad.className = 'ad';
-      ad.textContent = 'Adsterra ad placement';
-      container.appendChild(ad);
-    }
   });
 }
 
-loadNews();
-setInterval(loadNews, 300000);
+document.addEventListener('DOMContentLoaded', () => {
+  loadNews();
+  setInterval(loadNews, 300000);
+});
 </script>
 
 </body>
-
 </html>

@@ -101,6 +101,14 @@ function render(items) {
     container.appendChild(art);
   });
 }
+  function articleId(link) {
+  let hash = 0;
+  for (let i = 0; i < link.length; i++) {
+    hash = ((hash << 5) - hash) + link.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   loadNews();
@@ -110,3 +118,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+

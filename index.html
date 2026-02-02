@@ -87,16 +87,13 @@ function render(items) {
     const id = articleId(item.link || '');
     const safeSource = (item.source || 'News').replace(/\s+/g, '');
 
-    // ABSOLUTE URL + trailing slash (Cloudflare Pages safe)
-    const fullUrl = location.origin + '/article/' + id + '/';
-
     const art = document.createElement('article');
     art.innerHTML =
       '<span class="badge ' + safeSource + '">' + (item.source || '') + '</span>' +
       '<h2>' + item.title + '</h2>' +
       '<div class="meta">' + new Date(item.pubDate).toLocaleString('bg-BG') + '</div>' +
       '<p>' + (item.description || '') + '</p>' +
-      '<a href="' + fullUrl + '">Прочети още →</a>';
+      '<a href="/article.html?id=' + id + '">Прочети още →</a>';
 
     container.appendChild(art);
   });
@@ -110,3 +107,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+

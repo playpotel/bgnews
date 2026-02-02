@@ -5,15 +5,18 @@
   <title>Зареждане...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- SEO / OpenGraph -->
   <meta property="og:type" content="article">
   <meta property="og:title" content="">
   <meta property="og:description" content="">
   <meta property="og:site_name" content="BG News">
+  <meta property="og:image" content="https://bgnews.pages.dev/og-default.jpg">
+  <link rel="canonical" href="https://bgnews.pages.dev/article.html">
 
   <style>
     body { font-family: system-ui, sans-serif; margin:0; background:#f4f6f8; }
     main { max-width:800px; margin:auto; background:#fff; padding:1rem; }
-    h1 { font-size:1.4rem; }
+    h1 { font-size:1.4rem; margin-bottom:.3rem; }
     .meta { color:#666; font-size:.8rem; margin-bottom:1rem; }
     .ad { margin:1.5rem 0; text-align:center; }
     a.original { display:inline-block; margin-top:1rem; font-weight:600; }
@@ -42,6 +45,17 @@
 </main>
 
 <script>
+const API = 'https://bg-news-api.playpotel.workers.dev/';
+
+function articleId(link) {
+  let hash = 0;
+  for (let i = 0; i < link.length; i++) {
+    hash = ((hash << 5) - hash) + link.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString();
+}
+
 (function () {
   const container = document.getElementById('article');
   const params = new URLSearchParams(location.search);
@@ -52,16 +66,7 @@
     return;
   }
 
-  function articleId(link) {
-    let hash = 0;
-    for (let i = 0; i < link.length; i++) {
-      hash = ((hash << 5) - hash) + link.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash).toString();
-  }
-
-  fetch('https://bg-news-api.playpotel.workers.dev/')
+  fetch(API)
     .then(r => r.json())
     .then(data => {
       const item = data.items.find(x => articleId(x.link) === id);
@@ -71,15 +76,20 @@
       }
 
       document.title = item.title;
+      document.querySelector('meta[property="og:title"]').content = item.title;
+      document.querySelector('meta[property="og:description"]').content =
+        (item.description || '').replace(/<[^>]+>/g,'').slice(0,160);
 
-      container.innerHTML =
-        '<h1>' + item.title + '</h1>' +
-        '<div class="meta">' +
-          (item.source || '') + ' · ' +
-          new Date(item.pubDate).toLocaleString('bg-BG') +
-        '</div>' +
-        '<p>' + (item.description || '') + '</p>' +
-        '<a class="original" href="' + item.link + '" target="_blank">Прочети оригинала →</a>';
+      container.innerHTML = `
+        <h1>${item.title}</h1>
+        <div class="meta">
+          ${item.source || ''} · ${new Date(item.pubDate).toLocaleString('bg-BG')}
+        </div>
+        <p>${item.description || ''}</p>
+        <a class="original" href="${item.link}" target="_blank" rel="noopener">
+          Прочети оригинала →
+        </a>
+      `;
     })
     .catch(() => {
       container.textContent = 'Грешка при зареждане';

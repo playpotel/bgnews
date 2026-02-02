@@ -48,11 +48,13 @@
 const API = "https://bg-news-api.playpotel.workers.dev/";
 let allItems = [];
 
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-zа-я0-9]+/gi, '-')
-    .replace(/^-|-$/g, '');
+function articleId(link) {
+  let hash = 0;
+  for (let i = 0; i < link.length; i++) {
+    hash = ((hash << 5) - hash) + link.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
 }
 
 async function loadNews() {
@@ -87,7 +89,7 @@ function render(items) {
   container.innerHTML = '';
 
   items.forEach(item => {
-    const slug = slugify(item.title || 'news');
+    const id = articleId(item.link || '');
     const safeSource = (item.source || 'News').replace(/\s+/g, '');
 
     const art = document.createElement('article');
@@ -96,18 +98,10 @@ function render(items) {
       '<h2>' + item.title + '</h2>' +
       '<div class="meta">' + new Date(item.pubDate).toLocaleString('bg-BG') + '</div>' +
       '<p>' + (item.description || '') + '</p>' +
-      '<a href="/news/' + slug + '">Прочети още →</a>';
+      '<a href="/article/' + id + '">Прочети още →</a>';
 
     container.appendChild(art);
   });
-}
-  function articleId(link) {
-  let hash = 0;
-  for (let i = 0; i < link.length; i++) {
-    hash = ((hash << 5) - hash) + link.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -118,4 +112,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-

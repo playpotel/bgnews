@@ -1,8 +1,8 @@
 export async function onRequest({ request, env }) {
   const url = new URL(request.url);
 
-  // paksa semua /article/* diarahkan ke /article.html
-  url.pathname = '/article.html';
+  // arahkan ke /article/index.html (AMAN dari Clean URL redirect)
+  url.pathname = '/article/index.html';
 
   return env.ASSETS.fetch(new Request(url.toString(), request));
 }

@@ -75,6 +75,17 @@ function articleId(link) {
     .then(r => r.json())
     .then(data => {
       const item = data.items.find(x => articleId(x.link) === id);
+      const img = extractImage(item.description);
+      const cleanDesc = (item.description || '')
+      .replace(/<[^>]+>/g,'')
+      .slice(0,160);
+
+      document.querySelector('meta[property="og:title"]').content = item.title;
+      document.querySelector('meta[property="og:description"]').content = cleanDesc;
+
+      if (img) {
+      document.querySelector('meta[property="og:image"]').content = img;
+      }
       if (!item) {
         container.textContent = 'Статията не е намерена';
         return;

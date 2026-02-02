@@ -82,7 +82,7 @@ function render(items) {
       '<h2>' + item.title + '</h2>' +
       '<div class="meta">' + new Date(item.pubDate).toLocaleString('bg-BG') + '</div>' +
       '<p>' + (item.description || '') + '</p>' +
-      '<a href="article.html?url=' + encodeURIComponent(item.link) + '">Прочети още →</a>';
+      '<a href="/news/' + slug + '">Прочети още →</a>';
 
     container.appendChild(art);
 
@@ -100,4 +100,5 @@ setInterval(loadNews, 300000);
 </script>
 
 </body>
+
 </html>

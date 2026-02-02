@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Зареждане...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- OpenGraph -->
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="">
-  <meta property="og:description" content="">
-  <meta property="og:site_name" content="BG News">
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="BG News" />
 
   <style>
-    body { font-family: system-ui, sans-serif; background:#f4f6f8; margin:0; }
+    body { font-family: system-ui, sans-serif; margin:0; background:#f4f6f8; color:#222; }
     main { max-width:800px; margin:auto; background:#fff; padding:1rem; }
-    h1 { font-size:1.4rem; }
+    h1 { font-size:1.4rem; margin-bottom:.3rem; }
     .meta { color:#666; font-size:.8rem; margin-bottom:1rem; }
     .ad { margin:1.5rem 0; text-align:center; }
     a.original { display:inline-block; margin-top:1rem; font-weight:600; }
   </style>
 </head>
-
 <body>
 
 <main>
   <div id="article">Зареждане...</div>
 
-  <!-- ADSTERRA -->
+  <!-- ADSTERRA (STATIC & SAFE) -->
   <div class="ad">
     <script type="text/javascript">
       atOptions = {
@@ -46,8 +45,6 @@
 <script>
 (function () {
   const container = document.getElementById('article');
-
-  // ambil slug dari URL
   const slug = location.pathname.split('/').pop();
 
   fetch('https://bg-news-api.playpotel.workers.dev/')
@@ -71,17 +68,15 @@
       container.innerHTML =
         '<h1>' + item.title + '</h1>' +
         '<div class="meta">' +
-          item.source + ' · ' +
+          (item.source || 'Източник') + ' · ' +
           new Date(item.pubDate).toLocaleString('bg-BG') +
         '</div>' +
         '<p>' + (item.description || '') + '</p>' +
-        '<a class="original" href="' + item.link +
-        '" target="_blank">Прочети оригинала →</a>';
+        '<a class="original" href="' + item.link + '" target="_blank" rel="noopener">Прочети оригинала →</a>';
 
-      // OG
+      // OpenGraph
       document.querySelector('meta[property="og:title"]').content = item.title;
-      document.querySelector('meta[property="og:description"]').content =
-        item.description || '';
+      document.querySelector('meta[property="og:description"]').content = item.description || '';
     })
     .catch(err => {
       console.error(err);

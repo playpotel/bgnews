@@ -14,6 +14,16 @@ function articleId(link) {
   return Math.abs(h).toString();
 }
 
+function cleanDescription(html) {
+  if (!html) return '';
+  return html
+    .replace(/<figure[^>]*>.*?<\/figure>/gis, '')
+    .replace(/<img[^>]*>/gi, '')
+    .replace(/<br\s*\/?>/gi, '')
+    .replace(/<\/?p[^>]*>/gi, '')
+    .trim();
+}
+
 /* =========================
    HOMEPAGE
 ========================= */
@@ -39,26 +49,25 @@ async function loadHomepage() {
 
     data.items.forEach(item => {
       const id = articleId(item.link);
-      const el = document.createElement('article');
 
+      const el = document.createElement('article');
       el.innerHTML = `
         <span class="badge">${item.source || ''}</span>
         <h2>${item.title}</h2>
         <div class="meta">
           ${new Date(item.pubDate).toLocaleString('bg-BG')}
         </div>
-        <p>${item.description || ''}</p>
+        <p>${cleanDescription(item.description)}</p>
         <a href="/article.html?id=${id}">Прочети още →</a>
       `;
-
       container.appendChild(el);
     });
+
   } catch (e) {
     container.textContent = 'Грешка при зареждане';
     console.error(e);
   }
 
-  // auto refresh tiap 5 menit
   setInterval(() => {
     localStorage.removeItem(CACHE_KEY);
     loadHomepage();
@@ -97,13 +106,12 @@ async function loadArticle() {
       <div class="meta">
         ${item.source || ''} · ${new Date(item.pubDate).toLocaleString('bg-BG')}
       </div>
-      <p>${item.description || ''}</p>
+      <p>${cleanDescription(item.description)}</p>
       <a class="original" href="${item.link}" target="_blank">
         Прочети оригинала →
       </a>
     `;
 
-    // load ads after content
     setTimeout(loadAds, 1500);
 
   } catch (e) {

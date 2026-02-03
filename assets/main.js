@@ -14,12 +14,6 @@ function articleId(link) {
   return Math.abs(h).toString();
 }
 
-function extractImage(html) {
-  if (!html) return null;
-  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-  return m ? m[1] : null;
-}
-
 /* =========================
    HOMEPAGE
 ========================= */
@@ -64,7 +58,7 @@ async function loadHomepage() {
     console.error(e);
   }
 
-  // auto refresh
+  // auto refresh tiap 5 menit
   setInterval(() => {
     localStorage.removeItem(CACHE_KEY);
     loadHomepage();
@@ -109,6 +103,7 @@ async function loadArticle() {
       </a>
     `;
 
+    // load ads after content
     setTimeout(loadAds, 1500);
 
   } catch (e) {
@@ -136,7 +131,8 @@ function loadAds() {
   `;
 
   const s2 = document.createElement('script');
-  s2.src = 'https://tuckerclassesjackal.com/dff5c4c5dd22bf5b09bab809923da74a/invoke.js';
+  s2.src =
+    'https://tuckerclassesjackal.com/dff5c4c5dd22bf5b09bab809923da74a/invoke.js';
 
   ad.appendChild(s1);
   ad.appendChild(s2);

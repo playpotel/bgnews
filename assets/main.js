@@ -96,29 +96,19 @@ async function loadArticle() {
       return;
     }
 
-    const img = extractImage(item.description);
     document.title = item.title;
-
-    // OG for normal users (FB pakai Worker)
-    document.querySelector('meta[property="og:title"]')?.setAttribute('content', item.title);
-    document.querySelector('meta[property="og:description"]')?.setAttribute('content', item.description || '');
-    if (img) {
-      document.querySelector('meta[property="og:image"]')?.setAttribute('content', img);
-    }
 
     container.innerHTML = `
       <h1>${item.title}</h1>
       <div class="meta">
         ${item.source || ''} · ${new Date(item.pubDate).toLocaleString('bg-BG')}
       </div>
-      ${img ? `<img src="${img}" loading="lazy">` : ''}
       <p>${item.description || ''}</p>
       <a class="original" href="${item.link}" target="_blank">
         Прочети оригинала →
       </a>
     `;
 
-    // load ads AFTER content
     setTimeout(loadAds, 1500);
 
   } catch (e) {

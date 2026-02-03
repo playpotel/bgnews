@@ -52,6 +52,9 @@ export async function onRequest({ request, env }) {
       `<meta property="og:image" content="${image}">`);
 
   return new Response(html, {
-    headers: { 'Content-Type': 'text/html; charset=UTF-8' }
-  });
+  headers: {
+    'Content-Type': 'text/html; charset=UTF-8',
+    'Cache-Control': 'public, max-age=600'
+  }
+});
 }

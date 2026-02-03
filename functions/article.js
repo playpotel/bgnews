@@ -2,23 +2,29 @@ export async function onRequest({ request, env }) {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
 
-  // Ambil HTML asli
+  // AMBIL HTML DARI PAGES (BENAR)
   const res = await env.ASSETS.fetch(request);
   let html = await res.text();
 
   if (!id) {
-    return new Response(html, { headers: { 'Content-Type': 'text/html' } });
+    return new Response(html, {
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+        'Cache-Control': 'public, max-age=600'
+      }
+    });
   }
 
+  // AMBIL DATA RSS + CACHE
   const data = await fetch(
-  'https://bg-news-api.playpotel.workers.dev/',
-  {
-    cf: {
-      cacheTtl: 600,
-      cacheEverything: true
+    'https://bg-news-api.playpotel.workers.dev/',
+    {
+      cf: {
+        cacheEverything: true,
+        cacheTtl: 600
+      }
     }
-  }
-).then(r => r.json());
+  ).then(r => r.json());
 
   function articleId(link) {
     let h = 0;
@@ -31,7 +37,12 @@ export async function onRequest({ request, env }) {
 
   const item = data.items.find(x => articleId(x.link) === id);
   if (!item) {
-    return new Response(html, { headers: { 'Content-Type': 'text/html' } });
+    return new Response(html, {
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+        'Cache-Control': 'public, max-age=600'
+      }
+    });
   }
 
   const imgMatch = item.description?.match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -52,9 +63,9 @@ export async function onRequest({ request, env }) {
       `<meta property="og:image" content="${image}">`);
 
   return new Response(html, {
-  headers: {
-    'Content-Type': 'text/html; charset=UTF-8',
-    'Cache-Control': 'public, max-age=600'
-  }
-});
+    headers: {
+      'Content-Type': 'text/html; charset=UTF-8',
+      'Cache-Control': 'public, max-age=600'
+    }
+  });
 }

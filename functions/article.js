@@ -1,21 +1,18 @@
-export async function onRequest(context) {
-  const { request, env } = context;
+export async function onRequest({ request, env }) {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
 
   // Ambil HTML asli
-  const pageRes = await env.ASSETS.fetch(request);
-  let html = await pageRes.text();
+  const res = await env.ASSETS.fetch(request);
+  let html = await res.text();
 
   if (!id) {
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html; charset=UTF-8' }
-    });
+    return new Response(html, { headers: { 'Content-Type': 'text/html' } });
   }
 
-  // Ambil data RSS
-  const data = await fetch('https://bg-news-api.playpotel.workers.dev/')
-    .then(r => r.json());
+  const data = await fetch(
+    'https://bg-news-api.playpotel.workers.dev/'
+  ).then(r => r.json());
 
   function articleId(link) {
     let h = 0;
@@ -28,9 +25,7 @@ export async function onRequest(context) {
 
   const item = data.items.find(x => articleId(x.link) === id);
   if (!item) {
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html; charset=UTF-8' }
-    });
+    return new Response(html, { headers: { 'Content-Type': 'text/html' } });
   }
 
   const imgMatch = item.description?.match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -39,7 +34,7 @@ export async function onRequest(context) {
     : 'https://bgnews.pages.dev/og-default.jpg';
 
   const desc = item.description
-    ? item.description.replace(/<[^>]+>/g,'').slice(0,160)
+    ? item.description.replace(/<[^>]+>/g, '').slice(0, 160)
     : '';
 
   html = html

@@ -11,8 +11,14 @@ export async function onRequest({ request, env }) {
   }
 
   const data = await fetch(
-    'https://bg-news-api.playpotel.workers.dev/'
-  ).then(r => r.json());
+  'https://bg-news-api.playpotel.workers.dev/',
+  {
+    cf: {
+      cacheTtl: 600,
+      cacheEverything: true
+    }
+  }
+).then(r => r.json());
 
   function articleId(link) {
     let h = 0;
